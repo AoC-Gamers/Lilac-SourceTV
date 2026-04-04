@@ -1,0 +1,17 @@
+# Changelog
+
+## Unreleased
+
+- Reorganización del repositorio al layout estándar de SourceMod bajo `addons/sourcemod`.
+- Eliminación del binario compilado del control de versiones para dejar el repo orientado a código fuente y CI.
+- Incorporación de `addons/sourcemod/scripting/include/lilac_sourcetv.inc` como include público de la biblioteca.
+- Incorporación de CI y flujo de releases para compilar y publicar artefactos de SourceMod.
+- Los artefactos públicos exponen `lilac_sourcetv.inc` y excluyen `lilac.inc` y el plugin de pruebas `lilac_sourcetv_test.sp`.
+
+## 1.2.1
+
+- Versión base heredada del proyecto original.
+- Plugin para iniciar y detener grabaciones de SourceTV a partir de detecciones de Little Anti-Cheat.
+- Soporte para registro de eventos relacionados con grabación automática.
+- Soporte para reinicio de mapa cuando SourceTV no se une automáticamente, según configuración.
+- Soporte para ajuste automático de `tv_snapshotrate` según el tickrate del servidor.
