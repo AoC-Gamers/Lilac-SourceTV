@@ -5,6 +5,11 @@ on:
     tags:
       - v*
   workflow_dispatch:
+    inputs:
+      sourcemod_version:
+        description: SourceMod version to download
+        required: false
+        default: '1.12'
 
 concurrency:
   group: release-${{ github.ref }}
@@ -14,7 +19,8 @@ permissions:
   contents: read
 
 env:
-  SOURCEMOD_ARCHIVE_URL: https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7223-linux.tar.gz
+  SOURCEMOD_VERSION: ${{ inputs.sourcemod_version || '1.12' }}
+  SOURCEMOD_ARCHIVE_URL: https://www.sourcemod.net/latest.php?os=linux&version=${{ inputs.sourcemod_version || '1.12' }}
 
 jobs:
   prepare-release:
@@ -64,6 +70,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes curl tar python3
 
+      - name: Print SourceMod configuration
+        run: |
+          echo "SOURCEMOD_VERSION=${SOURCEMOD_VERSION}"
+          echo "SOURCEMOD_ARCHIVE_URL=${SOURCEMOD_ARCHIVE_URL}"
+
       - name: Verify GitHub CLI
         run: gh --version
 
@@ -80,7 +91,7 @@ jobs:
         run: bash ./scripts/ci-package-release-assets.sh
 
       - name: Upload release zip artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ needs.prepare-release.outputs.basename }}
           path: dist/release/${{ needs.prepare-release.outputs.basename }}.zip
