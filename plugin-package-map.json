@@ -1,0 +1,28 @@
+{
+  "build": {
+    "plugins": {
+      "root": [
+        "lilac_sourcetv"
+      ]
+    }
+  },
+  "artifact": {
+    "addons": {
+      "sourcemod": {
+        "scripting": {
+          "files": [
+            "lilac_sourcetv.sp"
+          ],
+          "include": {
+            "files": [
+              "lilac_sourcetv.inc"
+            ]
+          }
+        },
+        "translations": {
+          "all": true
+        }
+      }
+    }
+  }
+}

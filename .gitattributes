@@ -1,0 +1,47 @@
+* text=auto
+
+*.sp text eol=lf
+*.inc text eol=lf
+*.cfg text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.ps1 text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.mk text eol=lf
+Makefile text eol=lf
+Dockerfile text eol=lf
+*.env text eol=lf
+*.sql text eol=lf
+*.xml text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+
+*.smx binary
+*.so binary
+*.dll binary
+*.exe binary
+*.zip binary
+*.7z binary
+*.tar binary
+*.gz binary
+*.tgz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.wav binary
+*.mp3 binary
+*.vtf binary
+*.vmt text eol=lf
+*.res text eol=lf
+*.kv text eol=lf
