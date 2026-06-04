@@ -1,0 +1,178 @@
+"Phrases"
+{
+	// Command usage messages
+	"test_usage"
+	{
+		"es"		"[Lilac SourceTV] Uso: sm_lilac_test <objetivo> <tipo_trampa>"
+	}
+	
+	"test_cheat_types"
+	{
+		"es"		"[Lilac SourceTV] Tipos de trampa: 1 = AIMBOT, 2 = AIMLOCK"
+	}
+	
+	"test_invalid_target"
+	{
+		"es"		"[Lilac SourceTV] El jugador objetivo no es válido."
+	}
+	
+	"test_invalid_cheat_type"
+	{
+		"es"		"[Lilac SourceTV] Tipo de trampa inválido. Usa 1 para AIMBOT o 2 para AIMLOCK."
+	}
+	
+	"test_simulating_detection"
+	{
+		"#format"	"{1:s}"
+		"es"		"[Lilac SourceTV] Simulando detección para el jugador {1}"
+	}
+	
+	// Notification messages
+	"notify_detection"
+	{
+		"#format"	"{1:s},{2:s},{3:s}"
+		"es"		"[{green}Lilac STV{default}] Detección: {olive}{1}{default} [{olive}{2}{default}] - {red}{3}{default}"
+	}
+	
+	"notify_recording_start"
+	{
+		"#format"	"{1:s},{2:s},{3:s}"
+		"es"		"[{green}Lilac STV{default}] Grabación INICIADA para {olive}{1}{default} [{olive}{2}{default}] - {red}{3}{default}"
+	}
+	
+	"notify_recording_stop"
+	{
+		"#format"	"{1:s}"
+		"es"		"[{green}Lilac STV{default}] Grabación DETENIDA - Razón: {olive}{1}{default}"
+	}
+	
+	"notify_ban"
+	{
+		"#format"	"{1:s},{2:s},{3:s}"
+		"es"		"[{green}Lilac STV{default}] {red}JUGADOR BANEADO{default}: {olive}{1}{default} [{olive}{2}{default}] - {red}{3}{default}"
+	}
+	
+	"notify_recording_end"
+	{
+		"#format"	"{1:s},{2:s},{3:s}"
+		"es"		"[{green}Lilac STV{default}] Grabación terminada para {olive}{1}{default} {grey}[{2}]{default} - Razón: {green}{3}{default}"
+	}
+	
+	// Notification command messages
+	"notify_status_header"
+	{
+		"es"		"[Lilac SourceTV] Estado de Notificaciones:"
+	}
+	
+	"notify_status_current_value"
+	{
+		"#format"	"{1:d}"
+		"es"		"  Valor actual: {1}"
+	}
+	
+	"notify_status_detection"
+	{
+		"#format"	"{1:s},{2:d}"
+		"es"		"  Notificaciones de detección: {1} (Bandera: {2})"
+	}
+	
+	"notify_status_recording_start"
+	{
+		"#format"	"{1:s},{2:d}"
+		"es"		"  Notificaciones de inicio de grabación: {1} (Bandera: {2})"
+	}
+	
+	"notify_status_recording_stop"
+	{
+		"#format"	"{1:s},{2:d}"
+		"es"		"  Notificaciones de parada de grabación: {1} (Bandera: {2})"
+	}
+	
+	"notify_status_recording_end"
+	{
+		"#format"	"{1:s},{2:d}"
+		"es"		"  Notificaciones de fin de grabación: {1} (Bandera: {2})"
+	}
+	
+	"notify_status_ban"
+	{
+		"#format"	"{1:s},{2:d}"
+		"es"		"  Notificaciones de ban: {1} (Bandera: {2})"
+	}
+	
+	"notify_change_instructions"
+	{
+		"es"		"Para cambiar configuración, usa: sm_cvar lilac_stv_notify <valor>"
+	}
+	
+	"notify_flag_values"
+	{
+		"#format"	"{1:d}"
+		"es"		"Suma los valores de banderas: Todo={1}, Nada=0"
+	}
+	
+	"notify_examples"
+	{
+		"#format"	"{1:d},{2:d}"
+		"es"		"Ejemplos: Detecciones+Bans={1}, Solo Grabación={2}"
+	}
+	
+	// Toggle command messages
+	"toggle_usage"
+	{
+		"es"		"[Lilac SourceTV] Uso: sm_lilac_notify_toggle <tipo>"
+	}
+	
+	"toggle_types"
+	{
+		"es"		"[Lilac SourceTV] Tipo: 1 = Detección, 2 = Inicio Grabación, 3 = Parada Grabación, 4 = Fin Grabación, 5 = Ban"
+	}
+	
+	"toggle_invalid_type"
+	{
+		"es"		"[Lilac SourceTV] Tipo inválido. Usa 1-5."
+	}
+	
+	"toggle_success"
+	{
+		"es"		"[Lilac SourceTV] Tipo de notificación cambiado."
+	}
+	
+	// Common words
+	"enabled"
+	{
+		"es"		"HABILITADO"
+	}
+	
+	"disabled"
+	{
+		"es"		"DESHABILITADO"
+	}
+	
+	// End reasons for recordings
+	"disconnect"
+	{
+		"es"		"desconexión"
+	}
+	
+	"timeout"
+	{
+		"es"		"tiempo agotado"
+	}
+	
+	"manual_stop"
+	{
+		"es"		"parada manual"
+	}
+	
+	// Cheat types
+	"aimbot"
+	{
+		"es"		"AIMBOT"
+	}
+	
+	"aimlock"
+	{
+		"es"		"AIMLOCK"
+	}
+}

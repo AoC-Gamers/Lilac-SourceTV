@@ -1,0 +1,215 @@
+name: SourceMod Build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    paths:
+      - .github/workflows/sourcemod-build.yml
+      - Makefile
+      - plugin-package-map.json
+      - scripts/fetch-sourcemod.py
+      - scripts/build-local.py
+      - scripts/stage-artifact.py
+      - scripts/package-release.py
+      - scripts/ci-validate-artifact.sh
+      - addons/sourcemod/**
+      - Changelog
+      - README.md
+      - LICENSE
+      - docs/**
+  workflow_dispatch:
+    inputs:
+      sourcemod_version:
+        description: SourceMod version to download
+        required: false
+        default: "1.12"
+
+concurrency:
+  group: sourcemod-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  SOURCEMOD_VERSION: ${{ inputs.sourcemod_version || '1.12' }}
+
+jobs:
+  deps-smx:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install SourceMod build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes python3
+
+      - name: Restore SourceMod dependency cache
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-smx-deps-${{ env.SOURCEMOD_VERSION }}-${{ hashFiles('scripts/fetch-sourcemod.py', 'Makefile') }}
+
+      - name: Resolve SourceMod dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: make deps-smx PYTHON=python3 SOURCEMOD_VERSION="${SOURCEMOD_VERSION}" SMX_PLATFORM=linux
+
+      - name: Save SourceMod dependency cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: deps
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+
+  build-smx:
+    needs: deps-smx
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install SourceMod build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes python3
+
+      - name: Restore SourceMod dependency cache
+        uses: actions/cache/restore@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-smx-deps-${{ env.SOURCEMOD_VERSION }}-${{ hashFiles('scripts/fetch-sourcemod.py', 'Makefile') }}
+          fail-on-cache-miss: true
+
+      - name: Build SourceMod plugin
+        run: make build-smx PYTHON=python3 SPCOMP="deps/sourcemod-linux/addons/sourcemod/scripting/spcomp"
+
+      - name: Upload SourceMod build tree
+        uses: actions/upload-artifact@v6
+        with:
+          name: smx-build
+          path: .build/smx
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload SourceMod compile log
+        uses: actions/upload-artifact@v6
+        with:
+          name: smx-compile-log
+          path: deps/build-smx-compile.log
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    needs: build-smx
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install SourceMod release dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes python3
+
+      - name: Download SourceMod build tree
+        uses: actions/download-artifact@v6
+        with:
+          name: smx-build
+          path: .build/smx
+
+      - name: Download SourceMod compile log
+        uses: actions/download-artifact@v6
+        with:
+          name: smx-compile-log
+          path: deps
+
+      - name: Resolve artifact channel
+        id: artifact
+        shell: bash
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            main)
+              echo "version=latest" >> "$GITHUB_OUTPUT"
+              echo "basename=lilac-sourcetv-latest" >> "$GITHUB_OUTPUT"
+              echo "tag=channel/latest" >> "$GITHUB_OUTPUT"
+              echo "release_name=Latest" >> "$GITHUB_OUTPUT"
+              echo "prerelease=false" >> "$GITHUB_OUTPUT"
+              ;;
+            develop)
+              echo "version=develop" >> "$GITHUB_OUTPUT"
+              echo "basename=lilac-sourcetv-develop" >> "$GITHUB_OUTPUT"
+              echo "tag=channel/develop" >> "$GITHUB_OUTPUT"
+              echo "release_name=Develop" >> "$GITHUB_OUTPUT"
+              echo "prerelease=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "version=pr-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+              echo "basename=lilac-sourcetv-pr-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Package SourceMod build tree
+        run: make package-smx PYTHON=python3
+
+      - name: Stage SourceMod artifact
+        run: python3 ./scripts/stage-artifact.py . ./.build/package-smx ./deps/build-smx-compile.log
+
+      - name: Validate SourceMod artifact
+        run: bash ./scripts/ci-validate-artifact.sh
+
+      - name: Create release archive
+        env:
+          RELEASE_BASENAME: ${{ steps.artifact.outputs.basename }}
+        run: make release PYTHON=python3 RELEASE_BASENAME="${RELEASE_BASENAME}"
+
+      - name: Upload release zip
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.artifact.outputs.basename }}
+          path: dist/release/${{ steps.artifact.outputs.basename }}.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Move channel tag
+        if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'develop')
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "${{ steps.artifact.outputs.tag }}" "$GITHUB_SHA"
+          git push origin "refs/tags/${{ steps.artifact.outputs.tag }}" --force
+
+      - name: Publish channel release
+        if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'develop')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          tag="${{ steps.artifact.outputs.tag }}"
+          title="${{ steps.artifact.outputs.release_name }}"
+          asset="dist/release/${{ steps.artifact.outputs.basename }}.zip"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            if [[ "${{ steps.artifact.outputs.prerelease }}" == "true" ]]; then
+              gh release edit "$tag" --title "$title" --prerelease
+            else
+              gh release edit "$tag" --title "$title"
+            fi
+          else
+            if [[ "${{ steps.artifact.outputs.prerelease }}" == "true" ]]; then
+              gh release create "$tag" --title "$title" --prerelease --latest=false --target "$GITHUB_SHA"
+            else
+              gh release create "$tag" --title "$title" --latest=false --target "$GITHUB_SHA"
+            fi
+          fi
+
+          gh release upload "$tag" "$asset" --clobber
